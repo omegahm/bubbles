@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>BUBBLES!</title>
+</head>
+<body>
+  <div class="wrapper"></div>
+
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="bubbles.js"></script>
+  <script>
+    // var stream = new EventSource('https://8c06a69abf54b94af2099d298bd0fc04@stream.flowdock.com/flows?filter=testingincr/udvikling')
+    var stream = new EventSource('/stream')
+
+    stream.onmessage = function(event) {
+      var json = JSON.parse(event.data);
+
+      var id   = json.id   || parseInt(Math.random() * 100000);
+      var type = json.type || 'none';
+
+      new Bubble().init(id, type);
+    }
+  </script>
+</body>
+</html>
