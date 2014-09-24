@@ -11,7 +11,6 @@
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="bubbles.js"></script>
   <script>
-    // var stream = new EventSource('https://8c06a69abf54b94af2099d298bd0fc04@stream.flowdock.com/flows?filter=testingincr/udvikling')
     var stream = new EventSource('/stream')
 
     stream.onmessage = function(event) {
@@ -22,6 +21,22 @@
 
       new Bubble().init(id, type);
     }
+
+    <% if ENV['FLOW_DOCK_API_TOKEN'] %>
+      <% (ENV['FLOW_DOCK_CHANNELS'] || '').split(',').each do |channel| %>
+        var flow_stream = new EventSource('https://<%= ENV['FLOW_DOCK_API_TOKEN'] %>@stream.flowdock.com/flows?filter=<%= channel %>')
+
+        flow_stream.onmessage = function(event) {
+          console.log(event);
+          var json = JSON.parse(event.data);
+          console.log(json);
+          var id   = json.id   || parseInt(Math.random() * 100000);
+          var type = json.type || 'none';
+
+          new Bubble().init(id, type);
+        }
+      <% end %>
+    <% end %>
   </script>
 </body>
 </html>
