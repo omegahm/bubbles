@@ -5,6 +5,8 @@ ruby '2.1.2'
 gem 'sinatra'
 gem 'sinatra-contrib'
 
+gem 'thin'
+
 group :development do
   gem 'foreman'
 end
