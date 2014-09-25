@@ -11,16 +11,24 @@
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="bubbles.js"></script>
   <script>
-    var stream = new EventSource('/stream')
+    function setupStream(stream_uri) {
+      var json, type, color;
 
-    stream.onmessage = function(event) {
-      var json = JSON.parse(event.data);
+      stream = new EventSource(stream_uri)
 
-      var id   = json.id   || parseInt(Math.random() * 100000);
-      var type = json.type || 'none';
+      stream.onmessage = function(event) {
+        json = JSON.parse(event.data);
 
-      new Bubble().init(id, type);
+        type  = json.type || 'none';
+        color = json.color;
+
+        new Bubble().init(type, color);
+      }
     }
+
+    <% "/stream|#{ENV['STREAMS']}".split('|').each do |stream| %>
+      setupStream("<%= stream %>");
+    <% end %>
 
     <% if ENV['FLOW_DOCK_API_TOKEN'] %>
       <% (ENV['FLOW_DOCK_CHANNELS'] || '').split(',').each do |channel| %>
@@ -28,12 +36,12 @@
 
         flow_stream.onmessage = function(event) {
           console.log(event);
-          var json = JSON.parse(event.data);
-          console.log(json);
-          var id   = json.id   || parseInt(Math.random() * 100000);
-          var type = json.type || 'none';
 
-          new Bubble().init(id, type);
+          json = JSON.parse(event.data);
+
+          type = json.type || 'none';
+
+          new Bubble().init(type, null);
         }
       <% end %>
     <% end %>
