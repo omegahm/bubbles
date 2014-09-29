@@ -1,0 +1,15 @@
+<% if ENV['FLOW_DOCK_API_TOKEN'] %>
+  <% (ENV['FLOW_DOCK_CHANNELS'] || '').split(',').each do |channel| %>
+    var flow_stream = new EventSource('https://<%= ENV['FLOW_DOCK_API_TOKEN'] %>@stream.flowdock.com/flows?filter=<%= channel %>')
+
+    flow_stream.onmessage = function(event) {
+      console.log(event);
+
+      json = JSON.parse(event.data);
+
+      type = json.type || 'none';
+
+      new Bubble().init(type, null);
+    }
+  <% end %>
+<% end %>
