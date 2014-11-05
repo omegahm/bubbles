@@ -18,11 +18,9 @@
 
       stream.onmessage = function(event) {
         json = JSON.parse(event.data);
+        json.type = json.type || 'none';
 
-        type  = json.type || 'none';
-        color = json.color;
-
-        new Bubble().init(type, color);
+        new Bubble().init(json);
       }
     }
 
