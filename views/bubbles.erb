@@ -5,8 +5,13 @@
   <link rel="stylesheet" type="text/css" href="style.css">
   <title>BUBBLES!</title>
 </head>
-<body class="<%= 'no-background' if defined?(frame) and frame %>">
-  <div class="wrapper"></div>
+<body class="<%= 'no-background' if defined?(frame) && frame %>">
+  <div class="frame-container">
+    <% if defined?(frame_url) %>
+      <iframe src="<%= frame_url %>"></iframe>
+    <% end %>
+    <div class="wrapper"></div>
+  </div>
 
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="bubbles.js"></script>
