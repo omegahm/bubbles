@@ -16,6 +16,12 @@ get '/' do
   erb :bubbles
 end
 
+get '/frame' do
+  origin = params[:origin]
+  response.headers['X-Frame-Options'] = "ALLOW-FROM #{origin}"
+  erb :bubbles, locals: { frame: true }
+end
+
 get '/style.css' do
   content_type 'text/css'
   erb :'style.css'
@@ -32,6 +38,7 @@ end
 post '/broadcast' do
   return 405 unless params[:type]
   send_data(params)
+  response.headers['Access-Control-Allow-Origin'] = '*'
   201
 end
 

@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="style.css">
   <title>BUBBLES!</title>
 </head>
-<body>
+<body class="<%= 'no-background' if defined?(frame) and frame %>">
   <div class="wrapper"></div>
 
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
