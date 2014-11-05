@@ -24,9 +24,9 @@ var id = 0;
 
 var Bubble = function() {
   var self = this;
-  var el, bubble;
+  var el, bubble, color, size, parsedSize;
 
-  self.init = function(type, color) {
+  self.init = function(params) {
     id += 1;
 
     bubble = "<div id='bubble-" + id + "' \
@@ -40,11 +40,20 @@ var Bubble = function() {
     el.css({ left: Math.random() * screenWidth });
 
     // Color the bubble in a random, but consistent way
-    if (color === null) {
-      color = type.colorize();
+    color = params.color;
+    if (color === undefined) {
+      color = params.type.toString().colorize();
     }
-
     el.find('.bubble').css({ "background-color": color })
+
+    size = params.size
+    if (size !== undefined) {
+      parsedSize = parseFloat(size);
+      el.css({ 'top': -parsedSize + 'px' });
+      el.find('.bubble').css({ 'border-width': ((parsedSize/10)+2) + 'px' });
+      el.width(size);
+      el.height(size);
+    }
 
     // When the bubblerise transistion is done,
     // we apply pop and remove the bubbles
