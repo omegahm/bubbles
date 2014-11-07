@@ -6,11 +6,12 @@
   <title>BUBBLES!</title>
 </head>
 <body class="<%= 'no-background' if defined?(frame) && frame %>">
-  <div class="frame-container">
+  <div id="frame-container">
     <% if defined?(frame_url) %>
       <iframe src="<%= frame_url %>"></iframe>
     <% end %>
-    <div class="wrapper"></div>
+    <div id="wrapper"></div>
+    <div id="legends"></div>
   </div>
 
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>

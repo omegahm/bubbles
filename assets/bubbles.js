@@ -21,6 +21,25 @@ String.prototype.colorize = function() {
 
 var screenWidth = screen.availWidth - 24; // subtract size of bubble
 var id = 0;
+var legends = [];
+var legendDiv;
+
+function pushToLegend(type, color) {
+  if (legends.indexOf(type) === -1) {
+    legendDiv = "<div class='item' id='type-" + type + "' \
+                    <div style='background-color: " + color + "'> \
+                      " + type + " \
+                    </div> \
+                  </div>";
+
+    $('#legends').append(legendDiv);
+    legends.push(type);
+
+    return true;
+  }
+
+  return false;
+};
 
 var Bubble = function() {
   var self = this;
@@ -33,7 +52,7 @@ var Bubble = function() {
                  class='bubblerise bubble-container'> \
                    <div class='bubble'></div> \
                  </div>";
-    $('.wrapper').append(bubble);
+    $('#wrapper').append(bubble);
 
     // Find the bubble and place it at a random place on the X-axis
     el = $('#bubble-' + id);
@@ -54,6 +73,8 @@ var Bubble = function() {
       el.width(size);
       el.height(size);
     }
+
+    pushToLegend(params.type.toString(), color);
 
     // When the bubblerise transistion is done,
     // we apply pop and remove the bubbles
