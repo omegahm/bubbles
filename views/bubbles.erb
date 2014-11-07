@@ -7,9 +7,13 @@
 </head>
 <body class="<%= 'no-background' if defined?(frame) && frame %>">
   <div id="frame-container">
-    <% if defined?(frame_url) %>
-      <iframe src="<%= frame_url %>"></iframe>
+
+    <% if defined?(frame_urls) %>
+      <% frame_urls.split(',').each_with_index do |url, i| %>
+        <iframe id="iframe-<%= i %>" src="<%= url %>"></iframe>
+      <% end %>
     <% end %>
+
     <div id="wrapper"></div>
     <div id="legends"></div>
   </div>
@@ -37,5 +41,16 @@
     <%= erb :flow_dock %>
     <%= erb :cctv %>
   </script>
+  <% if defined?(frame_urls) %>
+    <script>
+      var currentIframe = 0;
+
+      setInterval(function() {
+        $("#iframe-" + currentIframe).css({ 'z-index': 1 });
+        currentIframe = (currentIframe + 1) % $('iframe').length;
+        $("#iframe-" + currentIframe).css({ 'z-index': 2 });
+      }, <%= defined?(duration) ? duration : (5 * 1000 * 60) %>);
+    </script>
+  <% end %>
 </body>
 </html>

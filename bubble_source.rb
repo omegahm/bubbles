@@ -19,7 +19,12 @@ end
 get '/frame' do
   origin = params[:origin]
   response.headers['X-Frame-Options'] = "ALLOW-FROM #{origin}"
-  erb :bubbles, locals: { frame: true, frame_url: params[:frame_url]}
+  erb :bubbles,
+      locals: {
+        frame: true,
+        frame_urls: params[:frame_urls],
+        duration: (params[:duration] || (5 * 1000 * 60)).to_i
+      }
 end
 
 get '/style.css' do
