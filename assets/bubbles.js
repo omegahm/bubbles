@@ -26,9 +26,10 @@ var legendDiv;
 
 function pushToLegend(type, color) {
   if (legends.indexOf(type) === -1) {
+    caption = type.substring(0, 25) // Truncate to 25 chars
     legendDiv = "<div class='item' id='type-" + type + "' \
                     <div style='background-color: " + color + "'> \
-                      " + type + " \
+                      " + caption + " \
                     </div> \
                   </div>";
 
