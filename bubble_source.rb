@@ -50,12 +50,14 @@ end
 post '/random' do
   count = params[:count].to_i || 1
   threads = []
+
   count.times do
     threads << Thread.new do
       sleep rand(10)
       send_data(type: rand(1_000_000), size: rand(100))
     end
-    threads.join(&:value)
   end
+
+  threads.join(&:value)
   201
 end

@@ -37,10 +37,8 @@
     <% "/stream|#{ENV['STREAMS']}".split('|').each do |stream| %>
       setupStream("<%= stream %>");
     <% end %>
-
-    <%= erb :flow_dock %>
-    <%= erb :cctv %>
   </script>
+
   <% if defined?(frame_urls) %>
     <script>
       var currentIframe = 0;
