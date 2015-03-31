@@ -3,13 +3,19 @@ require 'sinatra'
 require 'sinatra/streaming'
 require 'json'
 
-set server: 'thin', connections: []
+require './lib/bunny_client.rb'
+
+set server: 'thin', connections: [], bunny_clients: []
 set :public_folder, Proc.new { File.join(root, '/assets') }
 
 def send_data(params)
   object = params.to_json
-  data = "data: #{object}\n\n"
+  data = "data: #{object}\n\n".freeze
   settings.connections.each { |out| out << data }
+end
+
+def create_bunny_client
+  settings.bunny_clients << BunnyClient.new(settings).start
 end
 
 get '/' do
@@ -33,10 +39,16 @@ get '/style.css' do
 end
 
 get '/stream', provides: 'text/event-stream' do
+  create_bunny_client if settings.bunny_clients.empty?
+
   stream :keep_open do |out|
     settings.connections << out
+
     puts "A new challenger has arrived. Now we're #{settings.connections.size}."
-    out.callback { settings.connections.delete(out) }
+
+    out.callback {
+      settings.connections.delete(out)
+    }
   end
 end
 
