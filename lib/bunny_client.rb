@@ -33,23 +33,23 @@ class BunnyClient
           "x-message-ttl" => 5000
         }).bind(exchange, routing_key: '#')
 
-      rabbit.subscribe do |info, _meta, _payload|
-        new_event(info)
+      rabbit.subscribe do |info, meta, _payload|
+        new_event(info, meta)
       end
     end
   end
 
-  def new_event(info)
-    params = parse_info(info)
+  def new_event(info, meta)
+    params = parse_info(info, meta)
     object = params.to_json
 
     data = "data: #{object}\n\n".freeze
     connections.each { |out| out << data }
   end
 
-  def parse_info(info)
+  def parse_info(info, meta)
     {
-      type: info[:routing_key].to_s
+      type: meta[:type] || info[:routing_key].to_s
     }
   end
 
