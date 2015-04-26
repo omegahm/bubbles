@@ -26,8 +26,12 @@ class BunnyClient
       channel  = rabbit_connection.create_channel
       exchange = channel.topic('lb', auto_delete: false, durable: true)
 
-      rabbit = channel.queue('bubbles')
-                      .bind(exchange, routing_key: '#')
+      rabbit = channel.queue("bubbles-#{SecureRandom.uuid}",
+        exclusive: true,
+        auto_delete: true,
+        arguments: {
+          "x-message-ttl" => 5000
+        }).bind(exchange, routing_key: '#')
 
       rabbit.subscribe do |info, _meta, _payload|
         new_event(info)
