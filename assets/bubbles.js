@@ -3,7 +3,7 @@ String.prototype.getHashCode = function() {
 
   if (this.length !== 0) {
     for (var i = 0; i < this.length; i++) {
-      hash = this.charCodeAt(i) + ((hash << 5) - hash);
+      hash += this.charCodeAt(i)
       hash = hash & hash; // Convert to 32bit integer
     }
   }
@@ -34,18 +34,21 @@ function paintLegends() {
       return -1;
     return 0;
   }).forEach(function(legend) {
-    legendDiv += "<div class='item' id='type-" + legend.type + "' \
-                    <div style='background-color: " + legend.color + "'> \
-                      " + legend.type.substring(0, 25) + " (" + legend.count + ") \
-                    </div> \
-                  </div>";
+    legendDiv +=
+      "<div class='item' id='type-" + legend.type + "' \
+         <div style='background-color: " + legend.color + "'> \
+           " + legend.type.substring(0, 25) + " (" + legend.count + ") \
+         </div> \
+       </div>";
   });
 
   $('#legends').html(legendDiv);
 }
 
 function pushToLegend(type, color) {
-  var legend_exists = $.grep(legends, function(legend) { return legend.type == type; }).length !== 0
+  var legend_exists = $.grep(legends, function(legend) {
+    return legend.type == type;
+  }).length !== 0
 
   if (legend_exists) {
     $.each(legends, function(i, legend) {
