@@ -24,22 +24,62 @@ var id = 0;
 var legends = [];
 var legendDiv;
 
-function pushToLegend(type, color) {
-  if (legends.indexOf(type) === -1) {
-    legendDiv = "<div class='item' id='type-" + type + "' \
-                    <div style='background-color: " + color + "'> \
-                      " + type.substring(0, 25) + " \
+function paintLegends() {
+  legendDiv = ""
+
+  legends.sort(function(a, b) {
+    if (a.count < b.count)
+      return 1;
+    if (a.count > b.count)
+      return -1;
+    return 0;
+  }).forEach(function(legend) {
+    legendDiv += "<div class='item' id='type-" + legend.type + "' \
+                    <div style='background-color: " + legend.color + "'> \
+                      " + legend.type.substring(0, 25) + " (" + legend.count + ") \
                     </div> \
                   </div>";
+  });
 
-    $('#legends').append(legendDiv);
-    legends.push(type);
+  $('#legends').html(legendDiv);
+}
 
+function pushToLegend(type, color) {
+  var legend_exists = $.grep(legends, function(legend) { return legend.type == type; }).length !== 0
+
+  if (legend_exists) {
+    $.each(legends, function(i, legend) {
+      if (legend.type === type) {
+        legend.count += 1;
+        legend.timestamp = Date.now();
+      }
+    });
+
+    paintLegends();
+    return false;
+  } else {
+    legends.push({
+      type: type,
+      color: color,
+      count: 1,
+      timestamp: Date.now()
+    });
+
+    paintLegends();
     return true;
   }
-
-  return false;
 };
+
+function compactLegend() {
+  legends = $.grep(legends, function(legend) {
+    var one_hour_ago = Date.now() - 3600000;
+    return legend.timestamp > one_hour_ago;
+  });
+}
+
+setInterval(function() {
+  compactLegend();
+}, 2000);
 
 var Bubble = function() {
   var self = this;
