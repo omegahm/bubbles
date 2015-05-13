@@ -32,7 +32,16 @@ function paintLegends() {
       return 1;
     if (a.count > b.count)
       return -1;
-    return 0;
+
+    var aHash = a.type.getHashCode(),
+        bHash = b.type.getHashCode();
+
+    if (aHash < bHash)
+      return 1;
+    if (aHash > bHash)
+      return -1;
+
+    return 0
   }).forEach(function(legend) {
     legendDiv +=
       "<div class='item' id='type-" + legend.type + "' \
