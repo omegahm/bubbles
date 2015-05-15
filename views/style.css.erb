@@ -4,7 +4,10 @@ html, body {
 }
 
 body {
-  background: linear-gradient(#0099ff, #003399);
+  background: url(/aquarium.jpg) no-repeat center center fixed; /* linear-gradient(#0099ff, #003399); */
+  <% PREFIX.each do |prefix| %>
+  <%= prefix %>background-size: cover;
+  <% end %>
   margin: 0;
   padding: 0;
   overflow: hidden;
