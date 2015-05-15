@@ -19,125 +19,106 @@ String.prototype.colorize = function() {
   return this.getHashCode().intToHSL();
 };
 
-var screenWidth = screen.availWidth - 24; // subtract size of bubble
-var id = 0;
-var legends = [];
-var legendDiv;
+var Legend = function(type, color) {
+  var self = this;
+  self.type      = ko.observable(type);
+  self.color     = ko.observable(color);
+  self.count     = ko.observable(1);
+  self.timestamp = ko.observable(Date.now());
 
-function paintLegends() {
-  legendDiv = ""
-
-  legends.sort(function(a, b) {
-    if (a.count < b.count)
-      return 1;
-    if (a.count > b.count)
-      return -1;
-
-    var aHash = a.type.getHashCode(),
-        bHash = b.type.getHashCode();
-
-    if (aHash < bHash)
-      return 1;
-    if (aHash > bHash)
-      return -1;
-
-    return 0
-  }).forEach(function(legend) {
-    legendDiv +=
-      "<div class='item' id='type-" + legend.type + "' \
-         <div style='background-color: " + legend.color + "'> \
-           " + legend.type.substring(0, 25) + " (" + legend.count + ") \
-         </div> \
-       </div>";
+  self.legendStyle = ko.pureComputed(function() {
+    return {
+      backgroundColor: self.color()
+    };
   });
 
-  $('#legends').html(legendDiv);
+  self.text = ko.pureComputed(function() {
+    return self.type().substring(0, 25) + " (" + self.count() + ")";
+  });
 }
 
-function pushToLegend(type, color) {
-  var legend_exists = $.grep(legends, function(legend) {
-    return legend.type == type;
-  }).length !== 0
+var BubblesViewModel = function() {
+  var self = this;
+  self.bubbles = ko.observableArray([]);
+  self.legends = ko.observableArray([]);
 
-  if (legend_exists) {
-    $.each(legends, function(i, legend) {
-      if (legend.type === type) {
-        legend.count += 1;
-        legend.timestamp = Date.now();
+  self.incrementOrCreateLegend = function(type, color) {
+    if ($.grep(self.legends(), function(legend) { return legend.type() == type; }).length === 0) {
+      self.legends.push(new Legend(type, color));
+    } else {
+      self.incrementLegend(type);
+    }
+  };
+
+  self.incrementLegend = function(type) {
+    $.each(self.legends(), function(i, legend) {
+      if (legend.type() == type) {
+        legend.count(legend.count() + 1);
+        legend.timestamp(Date.now());
       }
     });
+  };
 
-    paintLegends();
-    return false;
-  } else {
-    legends.push({
-      type: type,
-      color: color,
-      count: 1,
-      timestamp: Date.now()
-    });
+  self.compactLegend = function() {
+    var one_hour_ago = Date.now() - 3600000;
+    self.legends(self.legends().filter(function(legend) {
+      return legend.timestamp() > one_hour_ago;
+    }));
+  };
 
-    paintLegends();
-    return true;
-  }
+  setInterval(function() {
+    self.compactLegend();
+  }, 2000);
 };
 
-function compactLegend() {
-  legends = $.grep(legends, function(legend) {
-    var one_hour_ago = Date.now() - 3600000;
-    return legend.timestamp > one_hour_ago;
-  });
-}
+var screenWidth = screen.availWidth - 24; // subtract size of bubble
+var bubblesViewModel = new BubblesViewModel();
+ko.applyBindings(bubblesViewModel);
 
-setInterval(function() {
-  compactLegend();
-}, 2000);
-
-var Bubble = function() {
+var Bubble = function(params) {
   var self = this;
-  var el, bubble, color, size, parsedSize;
+  self.type = ko.observable(params.type.toString());
+  self.bubblerise = ko.observable(true);
 
-  self.init = function(params) {
-    id += 1;
+  self.color = ko.observable(params.color)
+  if (self.color() === undefined) {
+    self.color(self.type().colorize());
+  }
 
-    bubble = "<div id='bubble-" + id + "' \
-                 class='bubblerise bubble-container'> \
-                   <div class='bubble'></div> \
-                 </div>";
-    $('#wrapper').append(bubble);
+  self.size = ko.observable(params.size)
+  self.containerStyle = ko.pureComputed(function() {
+    return {
+      left: Math.random() * screenWidth + "px",
+      top: parseFloat(self.size()) + "px"
+    };
+  });
 
-    // Find the bubble and place it at a random place on the X-axis
-    el = $('#bubble-' + id);
-    el.css({ left: Math.random() * screenWidth });
-
-    // Color the bubble in a random, but consistent way
-    color = params.color;
-    if (color === undefined) {
-      color = params.type.toString().colorize();
-    }
-    el.find('.bubble').css({ "background-color": color })
-
-    size = params.size
-    if (size !== undefined) {
-      parsedSize = parseFloat(size);
-      el.css({ 'top': -parsedSize + 'px' });
-      el.find('.bubble').css({ 'border-width': ((parsedSize/10)+2) + 'px' });
-      el.width(size);
-      el.height(size);
+  self.bubbleStyle = ko.pureComputed(function() {
+    var style = {
+      backgroundColor: self.color()
     }
 
-    pushToLegend(params.type.toString(), color);
+    if (self.size() !== undefined) {
+      style['borderWidth'] = parseFloat(self.size()) / 10 + 2;
+    }
 
-    // When the bubblerise transistion is done,
-    // we apply pop and remove the bubbles
-    el.one('webkitTransitionEnd', function(e) {
-      el.remove();
-    });
+    return style
+  });
 
-    // Makes the bubbles rise, by tricking them into transforming -Y with CSS
+  self.fire = function() {
+    bubblesViewModel.incrementOrCreateLegend(self.type(), self.color());
+    bubblesViewModel.bubbles.push(self);
+
     setTimeout(function() {
-      el.removeClass('bubblerise');
+      // Makes the bubbles rise, by tricking them into transforming -Y with CSS
+      self.bubblerise(false);
     }, 100);
+
+    setTimeout(function() {
+      // The CSS transistion takes 15s.
+      // Remove the bubble from DOM after 20s.
+      bubblesViewModel.bubbles.remove(self);
+    }, 20000);
   };
 }
 

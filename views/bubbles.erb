@@ -14,11 +14,19 @@
       <% end %>
     <% end %>
 
-    <div id="wrapper"></div>
-    <div id="legends"></div>
+    <div id="wrapper" data-bind="foreach: bubbles">
+      <div class="bubblerise bubble-container" data-bind="style: containerStyle, css: { bubblerise: bubblerise }">
+        <div class="bubble" data-bind="style: bubbleStyle, width: size, height: size"></div>
+      </div>
+    </div>
+
+    <div id="legends" data-bind="foreach: legends">
+      <div class="item" data-bind="style: legendStyle, text: text"></div>
+    </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
   <script src="bubbles.js"></script>
   <script>
     function setupStream(stream_uri) {
@@ -30,7 +38,7 @@
         json = JSON.parse(event.data);
         json.type = json.type || 'none';
 
-        new Bubble().init(json);
+        new Bubble(json).fire();
       }
     }
 
