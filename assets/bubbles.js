@@ -48,6 +48,21 @@ var BubblesViewModel = function() {
     } else {
       self.incrementLegend(type);
     }
+
+    self.legends(self.legends().sort(function(a, b) {
+      if (a.count() > b.count())
+        return -1;
+      if (a.count() < b.count())
+        return 1;
+
+      var aHash = a.type().getHashCode(),
+          bHash = b.type().getHashCode();
+      if (a.type() < b.type())
+        return 1;
+      if (a.type() > b.type())
+        return -1;
+      return 0;
+    }));
   };
 
   self.incrementLegend = function(type) {
