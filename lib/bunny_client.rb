@@ -23,7 +23,7 @@ class BunnyClient
     EventMachine.next_tick do
       puts 'Created bunny connection'
 
-      channel  = rabbit_connection.create_channel
+      channel  = rabbit_connection.create_channel.tap { |c| c.prefetch(20) }
       exchange = channel.topic('lb', auto_delete: false, durable: true)
 
       rabbit = channel.queue("bubbles-#{SecureRandom.uuid}",
