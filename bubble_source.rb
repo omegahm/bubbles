@@ -6,7 +6,7 @@ require 'json'
 require './lib/bunny_client.rb'
 
 set server: 'thin', connections: [], bunny_clients: []
-set :public_folder, Proc.new { File.join(root, '/assets') }
+set :public_folder, proc { File.join(root, '/assets') }
 
 def send_data(params)
   object = params.to_json
@@ -46,9 +46,9 @@ get '/stream', provides: 'text/event-stream' do
 
     puts "A new challenger has arrived. Now we're #{settings.connections.size}."
 
-    out.callback {
+    out.callback do
       settings.connections.delete(out)
-    }
+    end
   end
 end
 

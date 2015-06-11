@@ -19,31 +19,37 @@ class BunnyClient
 
   private
 
+  def channel
+    @channel ||= rabbit_connection.create_channel.tap { |c| c.prefetch(20) }
+  end
+
+  def exchange
+    @exchange ||= channel.topic('lb', auto_delete: false, durable: true)
+  end
+
   def start_ticking
     EventMachine.next_tick do
-      puts 'Created bunny connection'
-
-      channel  = rabbit_connection.create_channel.tap { |c| c.prefetch(20) }
-      exchange = channel.topic('lb', auto_delete: false, durable: true)
-
-      rabbit = channel.queue("bubbles-#{SecureRandom.uuid}",
-        exclusive: true,
-        auto_delete: true,
-        arguments: {
-          "x-message-ttl" => 5000
-        }).bind(exchange, routing_key: '#')
-
-      rabbit.subscribe do |info, meta, _payload|
+      binding.subscribe do |info, meta, _payload|
         new_event(info, meta)
       end
     end
   end
 
-  def new_event(info, meta)
-    params = parse_info(info, meta)
-    object = params.to_json
+  def binding
+    channel.queue(
+      "bubbles-#{SecureRandom.uuid}",
+      exclusive: true,
+      auto_delete: true,
+      arguments: {
+        'x-message-ttl' => 5000
+      }
+    ).bind(exchange, routing_key: '#')
+  end
 
-    data = "data: #{object}\n\n".freeze
+  def new_event(info, meta)
+    object = parse_info(info, meta).to_json
+
+    data = "data: #{object}\n\n"
     connections.each { |out| out << data }
   end
 
