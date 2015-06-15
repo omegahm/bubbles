@@ -29,8 +29,9 @@ class BunnyClient
 
   def start_ticking
     EventMachine.next_tick do
-      binding.subscribe do |info, meta, _payload|
+      binding.subscribe(manual_ack: true) do |info, meta, _payload|
         new_event(info, meta)
+        channel.ack(info.delivery_tag, false)
       end
     end
   end
