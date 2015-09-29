@@ -77,9 +77,9 @@ var BubblesViewModel = function() {
   };
 
   self.compactLegend = function() {
-    var one_hour_ago = Date.now() - 3600000;
+    var ten_minutes_ago = Date.now() - 600000;
     self.legends(self.legends().filter(function(legend) {
-      return legend.timestamp() > one_hour_ago;
+      return legend.timestamp() > ten_minutes_ago;
     }));
   };
 
