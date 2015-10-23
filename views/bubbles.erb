@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <meta http-equiv='refresh' content='300'>
   <link rel="stylesheet" type="text/css" href="style.css">
   <title>BUBBLES!</title>
 </head>
@@ -46,6 +45,10 @@
     <% "/stream|#{ENV['STREAMS']}".split('|').each do |stream| %>
       setupStream("<%= stream %>");
     <% end %>
+
+    setTimeout(funciton() {
+      window.location.reload();
+    }, <%= defined?(duration) ? duration * 4 : (8 * 1000 * 60) %>);
   </script>
 
   <% if defined?(frame_urls) %>
@@ -56,7 +59,7 @@
         $("#iframe-" + currentIframe).css({ 'z-index': 1 });
         currentIframe = (currentIframe + 1) % $('iframe').length;
         $("#iframe-" + currentIframe).css({ 'z-index': 2 });
-      }, <%= defined?(duration) ? duration : (5 * 1000 * 60) %>);
+      }, <%= defined?(duration) ? duration : (2 * 1000 * 60) %>);
     </script>
   <% end %>
 </body>
