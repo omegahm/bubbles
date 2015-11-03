@@ -46,7 +46,7 @@
       setupStream("<%= stream %>");
     <% end %>
 
-    setTimeout(funciton() {
+    setTimeout(function() {
       window.location.reload();
     }, <%= defined?(duration) ? duration * 4 : (8 * 1000 * 60) %>);
   </script>
